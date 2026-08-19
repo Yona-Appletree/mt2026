@@ -1882,10 +1882,14 @@ name = "mt-app-web"
 version = "0.1.0"
 dependencies = [
  "dioxus",
+ "futures-channel",
  "futures-util",
  "gloo-net",
  "gloo-timers",
  "js-sys",
+ "mt-pitch",
+ "mt-session",
+ "mt-theory",
  "serde",
  "serde_json",
  "wasm-bindgen",

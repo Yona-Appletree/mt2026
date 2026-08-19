@@ -10,6 +10,7 @@
 mod api;
 #[cfg(debug_assertions)]
 mod dev;
+mod drill;
 mod recorder;
 
 use dioxus::prelude::*;
@@ -29,6 +30,15 @@ const FREE_DRILL: &str = "free";
 
 fn main() {
     dioxus::launch(app);
+}
+
+/// Which screen is visible. Both stay mounted — the hidden one is
+/// `display: none` — so switching screens can never orphan a live mic or
+/// wipe a review trace.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Screen {
+    Drill,
+    Record,
 }
 
 /// Where the single screen is in the record→tag→save loop.
@@ -63,6 +73,7 @@ enum Cmd {
 
 #[component]
 fn app() -> Element {
+    let mut screen = use_signal(|| Screen::Drill);
     let mut phase = use_signal(|| Phase::Idle);
     let mut outcome = use_signal(|| None::<Outcome>);
     let mut captured = use_signal(|| None::<Recording>);
@@ -164,6 +175,11 @@ fn app() -> Element {
             if event.repeat() || event.meta_key() || event.ctrl_key() || event.alt_key() {
                 return;
             }
+            // The drill screen has its own handler; this one is the free
+            // recorder's.
+            if *screen.peek() != Screen::Record {
+                return;
+            }
             if matches!(*phase.peek(), Phase::Tagging | Phase::Saving) {
                 return;
             }
@@ -212,6 +228,8 @@ fn app() -> Element {
         None => ("banner", String::new()),
     };
 
+    let screen_now = screen();
+
     rsx! {
         document::Stylesheet { href: STYLE }
 
@@ -219,7 +237,27 @@ fn app() -> Element {
             header {
                 h1 { "mt2026" }
                 p { class: "tagline", "Record a take, tag it, keep it." }
+                nav { class: "nav",
+                    button {
+                        r#type: "button",
+                        class: if screen_now == Screen::Drill { "nav-tab nav-on" } else { "nav-tab" },
+                        onclick: move |_| screen.set(Screen::Drill),
+                        "Drill"
+                    }
+                    button {
+                        r#type: "button",
+                        class: if screen_now == Screen::Record { "nav-tab nav-on" } else { "nav-tab" },
+                        onclick: move |_| screen.set(Screen::Record),
+                        "Record"
+                    }
+                }
             }
+
+            div { class: if screen_now == Screen::Drill { "screen" } else { "screen screen-hidden" },
+                drill::DrillScreen { screen }
+            }
+
+            div { class: if screen_now == Screen::Record { "screen" } else { "screen screen-hidden" },
 
             section { class: if recording { "deck deck-live" } else { "deck" },
                 button {
@@ -303,6 +341,8 @@ fn app() -> Element {
             }
 
             DevTools { control }
+
+            } // record screen
         }
     }
 }

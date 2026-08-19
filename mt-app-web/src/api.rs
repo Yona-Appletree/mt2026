@@ -14,7 +14,7 @@ use web_sys::{Blob, FormData};
 const SAMPLES_URL: &str = "/api/samples";
 
 /// Stamped into every row by `build.rs`; `"unknown"` when git isn't around.
-const APP_GIT_SHA: &str = env!("MT_APP_GIT_SHA");
+pub const APP_GIT_SHA: &str = env!("MT_APP_GIT_SHA");
 
 /// What the server returns on a successful save.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -85,9 +85,25 @@ pub async fn save_sample(req: SaveRequest, pcm: &[f32]) -> Result<SavedSample, S
     };
     let meta_json =
         serde_json::to_string(&meta).map_err(|err| format!("failed to encode meta: {err}"))?;
+    post_sample(&meta_json, pcm).await
+}
 
+/// Posts a drill take. `mt_session::NewSampleMeta` serializes to exactly the
+/// wire shape `mt-server` expects (asserted in mt-session's tests), so it
+/// goes over as-is — no re-mapping layer to drift.
+pub async fn save_meta(
+    meta: &mt_session::NewSampleMeta,
+    pcm: &[f32],
+) -> Result<SavedSample, String> {
+    let meta_json =
+        serde_json::to_string(meta).map_err(|err| format!("failed to encode meta: {err}"))?;
+    post_sample(&meta_json, pcm).await
+}
+
+/// The one wire call, shared by the free-take and drill paths.
+async fn post_sample(meta_json: &str, pcm: &[f32]) -> Result<SavedSample, String> {
     let form = FormData::new().map_err(|err| js_msg("build the form body", &err))?;
-    form.append_with_str("meta", &meta_json)
+    form.append_with_str("meta", meta_json)
         .map_err(|err| js_msg("append the meta part", &err))?;
     form.append_with_blob_and_filename("pcm", &pcm_blob(pcm)?, "pcm.f32le")
         .map_err(|err| js_msg("append the pcm part", &err))?;
@@ -124,7 +140,7 @@ fn pcm_blob(pcm: &[f32]) -> Result<Blob, String> {
     Blob::new_with_u8_array_sequence(&parts).map_err(|err| js_msg("build the pcm blob", &err))
 }
 
-fn user_agent() -> String {
+pub fn user_agent() -> String {
     web_sys::window()
         .map(|window| window.navigator().user_agent().unwrap_or_default())
         .unwrap_or_default()

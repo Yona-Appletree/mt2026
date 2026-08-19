@@ -13,6 +13,9 @@ publish = false
 # latest `dioxus` was 0.7.10 as of this writing.
 [dependencies]
 dioxus = { version = "=0.7.9", features = ["web"] }
+# Timer messages (arpeggio-done, auto-stop) re-enter the drill coroutine
+# through an mpsc merged with its UI inbox; already in the tree via dioxus.
+futures-channel = { version = "0.3", default-features = false, features = ["alloc"] }
 # `StreamExt` for the control coroutine's `rx.next().await` — the extension
 # trait dioxus's own `use_coroutine` docs tell you to pull in.
 futures-util = { version = "0.3", default-features = false }
@@ -20,6 +23,11 @@ gloo-net = { version = "0.6", default-features = false, features = ["http", "jso
 # Recording-elapsed ticks. `wasm32` has no `std::thread::sleep`.
 gloo-timers = { version = "0.3", default-features = false, features = ["futures"] }
 js-sys = "0.3"
+# The drill loop (P6): control plane, DSP, and theory all live in the core
+# crates; this crate only adapts them to the browser.
+mt-pitch = { path = "../mt-pitch" }
+mt-session = { path = "../mt-session" }
+mt-theory = { path = "../mt-theory" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 wasm-bindgen = "0.2"
@@ -50,6 +58,16 @@ features = [
   # The multipart POST body.
   "Blob",
   "FormData",
+  # Drill reference tones (oscillator + gain envelope).
+  "AudioParam",
+  "GainNode",
+  "OscillatorNode",
+  "OscillatorType",
+  # The live pitch-trace canvas.
+  "CanvasRenderingContext2d",
+  "Element",
+  "HtmlCanvasElement",
+  "HtmlElement",
   # Document-level keydown for the one-keypress record path.
   "Document",
   "Event",

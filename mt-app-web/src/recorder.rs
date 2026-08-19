@@ -61,14 +61,37 @@ pub struct Recorder {
     device_label: String,
 }
 
+/// A per-block observer of the live capture: every 128-frame worklet block
+/// is handed here *as well as* being collected for the recording. This is
+/// how the drill's live trace taps the mic — the same contiguous sample
+/// stream the take is made of, so the live trace and the review trace can
+/// never disagree about what was sung (vision D6/D12).
+pub type Tap = Box<dyn FnMut(&[f32])>;
+
 impl Recorder {
     /// Opens the mic and starts collecting. Must be called from a user
     /// gesture: the `AudioContext` is constructed first, synchronously, so
     /// it inherits the click's user activation rather than resuming from a
     /// suspended state after the `getUserMedia` await.
     pub async fn start() -> Result<Self, String> {
+        Self::start_inner(None).await
+    }
+
+    /// [`Recorder::start`], plus a live tap on the sample stream. The
+    /// factory runs once the context exists, because a useful tap (a pitch
+    /// tracker) needs the **actual** sample rate, which is unknowable until
+    /// then.
+    pub async fn start_with_tap(
+        make_tap: impl FnOnce(u32) -> Tap + 'static,
+    ) -> Result<Self, String> {
+        Self::start_inner(Some(Box::new(make_tap))).await
+    }
+
+    async fn start_inner(
+        make_tap: Option<Box<dyn FnOnce(u32) -> Tap + 'static>>,
+    ) -> Result<Self, String> {
         let ctx = AudioContext::new().map_err(|err| js_err("create AudioContext", &err))?;
-        let wired = Self::wire_up(ctx.clone()).await;
+        let wired = Self::wire_up(ctx.clone(), make_tap).await;
         if wired.is_err() {
             // Don't leave an orphaned context (and its hardware claim)
             // behind when permission is denied or the worklet won't load.
@@ -77,7 +100,12 @@ impl Recorder {
         wired
     }
 
-    async fn wire_up(ctx: AudioContext) -> Result<Self, String> {
+    async fn wire_up(
+        ctx: AudioContext,
+        make_tap: Option<Box<dyn FnOnce(u32) -> Tap>>,
+    ) -> Result<Self, String> {
+        let sample_rate = ctx.sample_rate().round() as u32;
+        let mut tap = make_tap.map(|make| make(sample_rate));
         let window = web_sys::window().ok_or("no window object")?;
         let media_devices = window
             .navigator()
@@ -141,7 +169,11 @@ impl Recorder {
         let sink = Rc::clone(&chunks);
         let on_message = Closure::<dyn FnMut(MessageEvent)>::new(move |event: MessageEvent| {
             if let Ok(block) = event.data().dyn_into::<js_sys::Float32Array>() {
-                sink.borrow_mut().extend_from_slice(&block.to_vec());
+                let block = block.to_vec();
+                sink.borrow_mut().extend_from_slice(&block);
+                if let Some(tap) = tap.as_mut() {
+                    tap(&block);
+                }
             }
         });
         // Assigning `onmessage` implicitly starts the port; no `start()`.
@@ -159,8 +191,6 @@ impl Recorder {
         // is silence — no monitoring, no feedback loop.
         node.connect_with_audio_node(&ctx.destination())
             .map_err(|err| js_err("connect the worklet to the destination", &err))?;
-
-        let sample_rate = ctx.sample_rate().round() as u32;
 
         Ok(Recorder {
             ctx,
