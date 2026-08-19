@@ -1,0 +1,13 @@
+[package]
+name = "mt-archive"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+# WAV encode/decode for the archive's audio files (schema v1, see the
+# archive ADR landing in P2).
+hound = "3.5"

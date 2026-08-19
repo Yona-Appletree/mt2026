@@ -1,0 +1,16 @@
+[package]
+name = "mt-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# The only crate in this workspace allowed to depend on axum/tokio (see
+# AGENTS.md) — it is a humble adapter over `mt-archive`.
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["fs"] }
+mt-archive = { path = "../mt-archive" }
+serde_json = { workspace = true }

@@ -1,0 +1,10 @@
+[package]
+name = "mt-theory"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# Pure music-theory helpers (scales, degrees, intervals, frequency math).
+# Deliberately zero dependencies: this crate is values-in/values-out and
+# has no reason to pull in serde, I/O, or anything else.
+[dependencies]

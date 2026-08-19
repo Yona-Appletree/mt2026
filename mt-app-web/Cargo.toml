@@ -1,0 +1,15 @@
+[package]
+name = "mt-app-web"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# Excluded from the workspace `default-members` (see the root Cargo.toml) —
+# build it with `just build-web` / `just dev`, which shell out to `dx`.
+#
+# Pinned to =0.7.9: `dx` refuses to build against a dioxus crate version it
+# doesn't recognize, and the installed `dx` here is 0.7.9 while crates.io's
+# latest `dioxus` was 0.7.10 as of this writing.
+[dependencies]
+dioxus = { version = "=0.7.9", features = ["web"] }

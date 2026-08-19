@@ -1,0 +1,15 @@
+[application]
+name = "mt-app-web"
+default_platform = "web"
+asset_dir = "public"
+out_dir = "dist"
+
+[web.app]
+title = "mt2026"
+base_path = "/"
+
+# Dev-only: `dx serve` forwards `/api` to a locally running `mt-server`
+# (default port 4826, see MT_PORT in mt-server) so the frontend can use
+# relative URLs in both dev and production.
+[[web.proxy]]
+backend = "http://localhost:4826/api"
