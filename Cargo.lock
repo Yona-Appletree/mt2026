@@ -1908,8 +1908,13 @@ name = "mt-server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "bytes",
+ "hound",
+ "http-body-util",
  "mt-archive",
+ "serde",
  "serde_json",
+ "tempfile",
  "tokio",
  "tower",
  "tower-http",
