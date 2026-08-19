@@ -4,7 +4,13 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+# The drill's control plane. Depends on the two pure cores plus serde for
+# the upload wire types — no web framework, no async runtime, no archive
+# crate: the state machine must stay unit-testable without a browser.
 [dependencies]
 mt-theory = { path = "../mt-theory" }
 mt-pitch = { path = "../mt-pitch" }
 serde = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

@@ -25,9 +25,10 @@ Dependency arrows point high-churn → low-churn only. Rules:
   beyond `pitch-detection` so it can be shared later without dragging in
   the rest of the stack.
 - **`mt-session` is the humble-view core.** Events in, state + commands
-  out; side effects live behind port traits (`AudioOut`, `Capture`,
-  `Store`) so the state machine is unit-testable with fakes, no browser
-  required.
+  out: `DrillSession::handle(&mut self, Event) -> Vec<Command>` returns
+  commands **as data** (no trait objects); the web adapter executes them.
+  The state machine is unit-testable with plain event/command assertions,
+  no browser required.
 - **Control plane vs. data plane.** The 60fps live pitch trace (analyser →
   `mt-pitch` → ring buffer → canvas) is owned by the web adapter and never
   routes per-frame events through `mt-session`. Trace geometry is a pure
