@@ -11,3 +11,15 @@ thiserror = { workspace = true }
 # WAV encode/decode for the archive's audio files (schema v1, see the
 # archive ADR landing in P2).
 hound = "3.5"
+# Local-time day-dir naming, id minting, and RFC3339 `recorded_at` (schema
+# v1) all need a real local-offset lookup, which std doesn't provide. Picked
+# over the `time` crate because `time`'s local-offset resolution is opt-in
+# behind an unsound-on-multithread guard that returns `Err` in test binaries;
+# chrono's `Local` doesn't have that restriction. `default-features = false`
+# to skip chrono's (unused) serde/wasm/oldtime extras.
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
+[dev-dependencies]
+# Test-only: tempdir fixtures for append/read round-trip tests. Not part of
+# the crate's runtime dependency surface.
+tempfile = "3"

@@ -5,6 +5,11 @@ edition.workspace = true
 license.workspace = true
 
 # Pure music-theory helpers (scales, degrees, intervals, frequency math).
-# Deliberately zero dependencies: this crate is values-in/values-out and
-# has no reason to pull in serde, I/O, or anything else.
+# No I/O and no in-workspace dependencies. `serde` derive is allowed on
+# these shared value types (they get embedded in mt-archive rows via plain
+# fields), but nothing beyond that.
 [dependencies]
+serde = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
