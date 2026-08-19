@@ -1,1 +1,245 @@
-/* mt2026 stylesheet. Plain CSS (Q14) — no Tailwind. Empty stub for P1. */
+/* mt2026 stylesheet. Plain CSS (Q14) — no Tailwind, no build step.
+   One screen, dark, big touch targets: this gets driven mid-practice with
+   an instrument in hand, so nothing important should need aiming at. */
+
+:root {
+  --bg: #14161a;
+  --panel: #1d2128;
+  --line: #2c323c;
+  --ink: #e8eaed;
+  --ink-dim: #98a0ad;
+  --accent: #6ea8ff;
+  --live: #e5484d;
+  --ok: #46b17b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
+/* ---- record deck ---- */
+
+.deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.deck-live {
+  border-color: var(--live);
+}
+
+.record {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: #262b34;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.record:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.deck-live .record {
+  background: var(--live);
+  border-color: var(--live);
+  color: #fff;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.hint {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+}
+
+/* ---- tag form ---- */
+
+.tag {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.summary {
+  margin: 0 0 0.5rem;
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag label,
+.field-label {
+  margin-top: 0.6rem;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tag input,
+.tag textarea {
+  padding: 0.6rem 0.7rem;
+  background: #12151a;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.tag input:focus,
+.tag textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.ratings {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rating {
+  flex: 1;
+  padding: 0.7rem 0;
+  background: #12151a;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.rating-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #10131a;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  flex: 1;
+  padding: 0.8rem 0;
+  background: #262b34;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.actions .primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #10131a;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---- result banner ---- */
+
+.banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.banner-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.banner-error {
+  border-color: var(--live);
+  color: #ff9a9d;
+}
+
+/* ---- dev-only strip ---- */
+
+.devtools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--line);
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+}
+
+.devtools button {
+  padding: 0.4rem 0.7rem;
+  background: transparent;
+  border: 1px dashed var(--line);
+  border-radius: 0.4rem;
+  color: var(--ink-dim);
+  font: inherit;
+  cursor: pointer;
+}

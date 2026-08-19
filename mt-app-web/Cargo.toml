@@ -13,3 +13,48 @@ publish = false
 # latest `dioxus` was 0.7.10 as of this writing.
 [dependencies]
 dioxus = { version = "=0.7.9", features = ["web"] }
+# `StreamExt` for the control coroutine's `rx.next().await` — the extension
+# trait dioxus's own `use_coroutine` docs tell you to pull in.
+futures-util = { version = "0.3", default-features = false }
+gloo-net = { version = "0.6", default-features = false, features = ["http", "json"] }
+# Recording-elapsed ticks. `wasm32` has no `std::thread::sleep`.
+gloo-timers = { version = "0.3", default-features = false, features = ["futures"] }
+js-sys = "0.3"
+serde = { workspace = true }
+serde_json = { workspace = true }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+
+# web-sys is feature-gated per interface; this is exactly what the capture
+# adapter (`src/recorder.rs`) and the save call (`src/api.rs`) touch.
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  # getUserMedia + the raw-capture constraints, and the device label.
+  "MediaDevices",
+  "MediaStream",
+  "MediaStreamConstraints",
+  "MediaStreamTrack",
+  "MediaTrackConstraints",
+  # AudioContext → worklet graph.
+  "AudioContext",
+  "AudioDestinationNode",
+  "AudioNode",
+  "AudioWorklet",
+  "AudioWorkletNode",
+  "BaseAudioContext",
+  "MediaStreamAudioSourceNode",
+  "MessageEvent",
+  "MessagePort",
+  "Worklet",
+  # The multipart POST body.
+  "Blob",
+  "FormData",
+  # Document-level keydown for the one-keypress record path.
+  "Document",
+  "Event",
+  "EventTarget",
+  "KeyboardEvent",
+  "Navigator",
+  "Window",
+]
