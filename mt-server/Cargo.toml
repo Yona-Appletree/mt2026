@@ -1,0 +1,28 @@
+[package]
+name = "mt-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# The only crate in this workspace allowed to depend on axum/tokio (see
+# AGENTS.md) — it is a humble adapter over `mt-archive`.
+[dependencies]
+axum = { version = "0.8", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["fs"] }
+mt-archive = { path = "../mt-archive" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+# Test-only: `tower::ServiceExt::oneshot` drives the router without binding
+# a socket; `http-body-util` reads the response body back out. Both are
+# already in the dependency tree transitively via axum, so this doesn't add
+# new crates to the workspace's build graph, just names them directly.
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+bytes = "1"
+# Read the WAV the handler wrote back to verify rate/samples round-trip.
+hound = "3.5"
+tempfile = "3"

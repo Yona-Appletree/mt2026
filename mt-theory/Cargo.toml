@@ -1,0 +1,15 @@
+[package]
+name = "mt-theory"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# Pure music-theory helpers (scales, degrees, intervals, frequency math).
+# No I/O and no in-workspace dependencies. `serde` derive is allowed on
+# these shared value types (they get embedded in mt-archive rows via plain
+# fields), but nothing beyond that.
+[dependencies]
+serde = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

@@ -1,0 +1,11 @@
+[package]
+name = "mt-pitch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# Pure pitch-tracking over `&[f32]` sample buffers. Kept to a single
+# dependency (D7 in the plan) so it stays shareable outside this workspace
+# later without dragging in serde, web-sys, or the archive types.
+[dependencies]
+pitch-detection = "0.3"

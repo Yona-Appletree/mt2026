@@ -1,0 +1,31 @@
+[workspace]
+resolver = "2"
+members = [
+    "mt-archive",
+    "mt-theory",
+    "mt-pitch",
+    "mt-session",
+    "mt-server",
+    "mt-app-web",
+]
+# mt-app-web is excluded so plain `cargo build`/`cargo test` stay host-only —
+# the Dioxus web bundle only builds through `dx` (see `just build-web`), and
+# a host `cargo build --workspace` would otherwise try (and fail) to build it
+# for the host target.
+default-members = [
+    "mt-archive",
+    "mt-theory",
+    "mt-pitch",
+    "mt-session",
+    "mt-server",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
